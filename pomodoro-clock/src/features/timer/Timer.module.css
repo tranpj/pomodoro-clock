@@ -1,3 +1,17 @@
+.timerSettings{
+  margin: 0;
+  margin-left: 16px;
+  margin-right: 16px;
+  width: 33%;
+}
+
+.header {
+  font-size: 78px;
+  margin: 0;
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
 .row {
   display: flex;
   align-items: center;

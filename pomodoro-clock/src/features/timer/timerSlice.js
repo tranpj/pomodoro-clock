@@ -1,10 +1,28 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchCount } from './counterAPI';
+import { fetchCount } from './timerAPI';
 
 const initialState = {
   value: 0,
   status: 'idle',
 };
+
+const timerRanges = [
+  {
+    id: 'numSessions',
+    min: 1,
+    max: 4
+  },
+  {
+    id: 'session',
+    min: 1,
+    max: 60
+  },
+  {
+    id: 'break',
+    min: 1,
+    max: 60
+  }
+];
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
