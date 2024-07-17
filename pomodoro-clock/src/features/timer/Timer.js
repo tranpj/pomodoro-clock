@@ -18,13 +18,6 @@ const beepSRC = 'https://upload.wikimedia.org/wikipedia/commons/c/ce/Rotating-bi
 
 const timerSettingsArray = [
   {
-    id: 'numSessions',
-    headerText: '# of Sessions',
-    unitType: 'count',
-    unit: 'sessions',
-    selector: selectCount
-  },
-  {
     id: 'session',
     headerText: 'Session Length',
     unitType: 'length',
@@ -84,19 +77,25 @@ function Timer() {
           id='start_stop'
           className={styles.button}
           aria-label='Start or stop current session or break timer'
-          ><span><i class="bi bi-play-fill"></i><i class="bi bi-pause-fill"></i></span></button>
+        ><span><i class="bi bi-play-fill"></i><i class="bi bi-pause-fill"></i></span></button>
+      </div>
+      <div className={styles.row}>
+        <select id='resetSelect' className={styles.select}>
+          <option value="25/5 Timer" id="timer_25_5" className={styles.option}>25 + 5</option>
+          <option value="52/17 Timer" id="timer_52_17" className={styles.option}>52 / 17</option>
+        </select>
         <button
           id='reset'
           className={styles.button}
           aria-label='Reset current session orr break timer'
-          ><i class="bi bi-arrow-clockwise"></i></button>
+        ><i class="bi bi-arrow-clockwise"></i></button>
       </div>
     </div>
   );
 }
 
-export function PomodoroClock() {
-    return (
+export function ProductivityTimer() {
+  return (
     <div>
       <div hidden>
         <audio id='beep' src={beepSRC}></audio>

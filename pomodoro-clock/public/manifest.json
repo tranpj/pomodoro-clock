@@ -1,6 +1,6 @@
 {
-  "short_name": "Pomodoro Clock",
-  "name": "Pomodoro Clock (25 + 5 Clock)",
+  "short_name": "Productivity Timer",
+  "name": "Productivity Timer",
   "icons": [
     {
       "src": "favicon.ico",

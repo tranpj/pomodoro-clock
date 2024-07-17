@@ -8,11 +8,6 @@ const initialState = {
 
 const timerRanges = [
   {
-    id: 'numSessions',
-    min: 1,
-    max: 4
-  },
-  {
     id: 'session',
     min: 1,
     max: 60
@@ -23,6 +18,19 @@ const timerRanges = [
     max: 60
   }
 ];
+
+const timerDefaults = [
+  {
+    id: 'timer_25_5',
+    session: 25,
+    break: 5
+  },
+  {
+    id: 'timer_52_17',
+    session: 52,
+    break: 17
+  },
+]
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
