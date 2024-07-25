@@ -3,10 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   decrement,
   increment,
-  incrementByAmount,
-  incrementAsync,
-  incrementIfOdd,
+  reset,
+  start,
+  stop,
   selectCount,
+  selectSessionLength,
+  selectBreakLength,
 } from './timerSlice';
 import styles from './Timer.module.css';
 //import bootstrap icons
@@ -22,14 +24,14 @@ const timerSettingsArray = [
     headerText: 'Session Length',
     unitType: 'length',
     unit: 'minute(s)',
-    selector: selectCount
+    selector: selectSessionLength
   },
   {
     id: 'break',
     headerText: 'Break Length',
     unitType: 'length',
     unit: 'minute(s)',
-    selector: selectCount
+    selector: selectBreakLength
   }
 ];
 
@@ -77,7 +79,7 @@ function Timer() {
           id='start_stop'
           className={styles.button}
           aria-label='Start or stop current session or break timer'
-        ><span><i class="bi bi-play-fill"></i><i class="bi bi-pause-fill"></i></span></button>
+        ><span><i className="bi bi-play-fill"></i><i className="bi bi-pause-fill"></i></span></button>
       </div>
       <div className={styles.row}>
         <select id='resetSelect' className={styles.select}>
@@ -88,7 +90,7 @@ function Timer() {
           id='reset'
           className={styles.button}
           aria-label='Reset current session orr break timer'
-        ><i class="bi bi-arrow-clockwise"></i></button>
+        ><i className="bi bi-arrow-clockwise"></i></button>
       </div>
     </div>
   );
@@ -101,7 +103,7 @@ export function ProductivityTimer() {
         <audio id='beep' src={beepSRC}></audio>
       </div>
       <div className={styles.row}>
-        {timerSettingsArray.map(timerSetting => <TimerSettings id={timerSetting.id} />)}
+        {timerSettingsArray.map(timerSetting => <TimerSettings id={timerSetting.id} key={timerSetting.id}/>)}
       </div>
       <div className={styles.row}>
         <Timer />
