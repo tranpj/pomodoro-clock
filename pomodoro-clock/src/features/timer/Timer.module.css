@@ -1,3 +1,8 @@
+.timer{
+  border: 1px solid rgb(112, 76, 182);;
+  border-radius: 10px;
+}
+
 .timerSettings{
   margin: 0;
   margin-left: 16px;
@@ -10,6 +15,7 @@
   margin: 0;
   margin-left: 16px;
   margin-right: 16px;
+  text-transform: capitalize;
 }
 
 .row {

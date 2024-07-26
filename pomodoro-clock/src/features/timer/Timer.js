@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import {
   decrement,
   increment,
   reset,
-  start,
-  stop,
-  selectCount,
+  startStop,
+  selectRemainingTime,
+  selectCurrentTimer,
   selectSessionLength,
-  selectBreakLength,
+  selectBreakLength
 } from './timerSlice';
 import styles from './Timer.module.css';
 //import bootstrap icons
@@ -65,20 +65,21 @@ function TimerSettings(props) {
 
 function Timer() {
   const dispatch = useDispatch();
-  const remainingTime = useSelector(selectCount);
-  const currentTimer = useSelector(selectCount);
+  const remainingTime = useSelector(selectRemainingTime);
+  const currentTimer = useSelector(selectCurrentTimer);
 
   return (
-    <div>
+    <div className={styles.timer}>
       <div>
-        <h1 id='timer-label'>{currentTimer}</h1>
-        <label id='time-left'>{remainingTime}</label>
+        <h1 id='timer-label' className={styles.header}>{currentTimer}</h1>
+        <label id='time-left' className={styles.value}>{remainingTime}</label>
       </div>
       <div className={styles.row}>
         <button
           id='start_stop'
           className={styles.button}
           aria-label='Start or stop current session or break timer'
+          onClick={()=>dispatch(startStop())}
         ><span><i className="bi bi-play-fill"></i><i className="bi bi-pause-fill"></i></span></button>
       </div>
       <div className={styles.row}>
@@ -90,6 +91,7 @@ function Timer() {
           id='reset'
           className={styles.button}
           aria-label='Reset current session orr break timer'
+          onClick={() => dispatch(reset())}
         ><i className="bi bi-arrow-clockwise"></i></button>
       </div>
     </div>
@@ -103,7 +105,7 @@ export function ProductivityTimer() {
         <audio id='beep' src={beepSRC}></audio>
       </div>
       <div className={styles.row}>
-        {timerSettingsArray.map(timerSetting => <TimerSettings id={timerSetting.id} key={timerSetting.id}/>)}
+        {timerSettingsArray.map(timerSetting => <TimerSettings id={timerSetting.id} key={timerSetting.id} />)}
       </div>
       <div className={styles.row}>
         <Timer />
