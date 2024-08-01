@@ -82,14 +82,17 @@ const updateCountDown = () => (dispatch, getState) =>
     const curRemainingTimeMS = selectRemainingTimeMS(getState());
     const curStatus = selectStatus(getState());
     if (curStatus === START && curRemainingTimeMS > 0) {
+      //update count down
       dispatch(countDown());
+
       //recursively dispatch this thunk
       dispatch(updateCountDown());
     }
     else if (curRemainingTimeMS <= 0) {
       //toggle to stop
       dispatch(switchTimers());
-      document.getElementById('beep').play();
+
+      //recursively dispatch this thunk
       dispatch(updateCountDown());
     }
   }, 1000);
@@ -169,6 +172,7 @@ export const timerSlice = createSlice({
     reset: (state) => {
       const resetTimerDefault = timerDefaults[document.getElementById('resetSelect').options.selectedIndex];
       const beep = document.getElementById('beep');
+      const beepNewSession = document.getElementById('beepNewSession');
 
       //reset to session timer and set state to idle
       state.currentTimer = SESSION;
@@ -183,6 +187,8 @@ export const timerSlice = createSlice({
       //reset audio
       beep.pause();
       beep.currentTime = 0;
+      beepNewSession.pause();
+      beepNewSession.currentTime = 0;
     },
     startStop: (state) => {
       switch (state.status) {
@@ -196,20 +202,25 @@ export const timerSlice = createSlice({
     },
     switchTimers: (state) => {
       const beep = document.getElementById('beep');
+      const beepNewSession = document.getElementById('beepNewSession');
 
       //reset audio
       beep.pause();
       beep.currentTime = 0;
+      beepNewSession.pause();
+      beepNewSession.currentTime = 0;
 
       let remainingTimeMS;
       state.status = STOP;
 
       switch (state.currentTimer) {
         case SESSION:
+          beep.play();
           state.currentTimer = BREAK;
           remainingTimeMS = minutesToMS(state.breakLength);
           break;
         case BREAK:
+          beepNewSession.play();
           state.currentTimer = SESSION;
           remainingTimeMS = minutesToMS(state.sessionLength);
           break;

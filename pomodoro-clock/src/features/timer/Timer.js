@@ -20,6 +20,10 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 //AntumDeluge, CC0, via Wikimedia Commons
 const beepSRC = 'https://upload.wikimedia.org/wikipedia/commons/c/ce/Rotating-bicycle-bell.wav';
 
+//https://commons.wikimedia.org/wiki/File:Bicycle-bell-1.wav
+//Soundscape_Leuphana, CC0, via Wikimedia Commons
+const beepSRCNewSession = 'https://upload.wikimedia.org/wikipedia/commons/6/68/Bicycle-bell-1.wav';
+
 const timerSettingsArray = [
   {
     id: 'session',
@@ -80,6 +84,7 @@ function Timer() {
       <div className={styles.row}>
         <div hidden>
           <audio id='beep' src={beepSRC}></audio>
+          <audio id='beepNewSession' src={beepSRCNewSession}></audio>
         </div>
         <button
           id='start_stop'
