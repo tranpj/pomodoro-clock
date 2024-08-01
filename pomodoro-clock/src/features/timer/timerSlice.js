@@ -1,5 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchCount } from './timerAPI';
+import { createSlice } from '@reduxjs/toolkit';
 
 //types of timers
 const SESSION = 'session';
@@ -7,7 +6,7 @@ const BREAK = 'break';
 
 //timer states
 const START = 'start';
-const STOP = 'stop';
+export const STOP = 'stop';
 
 const timerRanges = [
   {
@@ -58,11 +57,11 @@ const msToStringTime = (ms) => {
 
 const initialState = {
   remainingTimeMS: minutesToMS(timerDefaults[0].session),
+  remainingTimeString: msToStringTime(minutesToMS(timerDefaults[0].session)),
   currentTimer: SESSION,
   sessionLength: timerDefaults[0].session,
   breakLength: timerDefaults[0].break,
-  status: STOP,
-  timeout: ''
+  status: STOP
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -70,17 +69,33 @@ const initialState = {
 // will call the thunk with the `dispatch` function as the first argument. Async
 // code can then be executed and other actions can be dispatched. Thunks are
 // typically used to make async requests.
-export const incrementAsync = createAsyncThunk(
-  'counter/fetchCount',
-  async (amount) => {
-    const response = await fetchCount(amount);
-    // The value we return becomes the `fulfilled` action payload
-    return response.data;
+export const startStopAsync = () => (dispatch, getState) => {
+  dispatch(startStop());
+  const curStatus = selectStatus(getState());
+  if (curStatus === START) {
+    dispatch(updateCountDown());
   }
-);
+};
 
-export const counterSlice = createSlice({
-  name: 'counter',
+const updateCountDown = () => (dispatch, getState) =>
+  setTimeout(() => {
+    const curRemainingTimeMS = selectRemainingTimeMS(getState());
+    const curStatus = selectStatus(getState());
+    if (curStatus === START && curRemainingTimeMS > 0) {
+      dispatch(countDown());
+      //recursively dispatch this thunk
+      dispatch(updateCountDown());
+    }
+    else if (curRemainingTimeMS <= 0) {
+      //toggle to stop
+      dispatch(switchTimers());
+      document.getElementById('beep').play();
+      dispatch(updateCountDown());
+    }
+  }, 1000);
+
+export const timerSlice = createSlice({
+  name: 'timer',
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
@@ -113,10 +128,12 @@ export const counterSlice = createSlice({
             break;
         }
       }
+
+      state.remainingTimeString = msToStringTime(state.remainingTimeMS);
     },
     decrement: (state, action) => {
       //timer not running allow updates of session and break lengths
-      if (state.status === STOP) {
+      if (state.status === STOP && action.payload) {
         const range = timerRanges.find((e) => e.id = action.payload);
         switch (action.payload) {
           case SESSION:
@@ -142,14 +159,16 @@ export const counterSlice = createSlice({
             break;
         }
       }
-      //timer running
-      else {
-        state.remainingTimeMS--;
-      }
+
+      state.remainingTimeString = msToStringTime(state.remainingTimeMS);
+    },
+    countDown: (state) => {
+      state.remainingTimeMS = state.remainingTimeMS - 1000;
+      state.remainingTimeString = msToStringTime(state.remainingTimeMS);
     },
     reset: (state) => {
-      const resetSelect = document.getElementById('resetSelect');
-      const resetTimerDefault = timerDefaults[resetSelect.options.selectedIndex];
+      const resetTimerDefault = timerDefaults[document.getElementById('resetSelect').options.selectedIndex];
+      const beep = document.getElementById('beep');
 
       //reset to session timer and set state to idle
       state.currentTimer = SESSION;
@@ -159,46 +178,61 @@ export const counterSlice = createSlice({
       state.sessionLength = resetTimerDefault.session;
       state.breakLength = resetTimerDefault.break;
       state.remainingTimeMS = minutesToMS(resetTimerDefault.session);
+      state.remainingTimeString = msToStringTime(minutesToMS(resetTimerDefault.session));
+
+      //reset audio
+      beep.pause();
+      beep.currentTime = 0;
     },
     startStop: (state) => {
-      if (state.status === STOP) {
-        state.status = START;
-        const start = new Date(Date.now() + state.remainingTimeMS);
-        console.log(msToStringTime(state.remainingTimeMS));
-        state.timeout = setInterval(function () {
-          let deltaMS = start - Date.now();
-          console.log(msToStringTime(deltaMS));
-        }, 1000);
+      switch (state.status) {
+        case START:
+          state.status = STOP;
+          break;
+        case STOP:
+          state.status = START;
+          break;
       }
-      else {
-        state.status = STOP;
-        clearInterval(state.timeout);
-        console.log('stop');
+    },
+    switchTimers: (state) => {
+      const beep = document.getElementById('beep');
+
+      //reset audio
+      beep.pause();
+      beep.currentTime = 0;
+
+      let remainingTimeMS;
+      state.status = STOP;
+
+      switch (state.currentTimer) {
+        case SESSION:
+          state.currentTimer = BREAK;
+          remainingTimeMS = minutesToMS(state.breakLength);
+          break;
+        case BREAK:
+          state.currentTimer = SESSION;
+          remainingTimeMS = minutesToMS(state.sessionLength);
+          break;
       }
+
+      state.remainingTimeMS = remainingTimeMS;
+      state.remainingTimeString = msToStringTime(remainingTimeMS);
+
+      state.status = START;
     }
-  },
-  // The `extraReducers` field lets the slice handle actions defined elsewhere,
-  // including actions generated by createAsyncThunk or in other slices.
-  extraReducers: (builder) => {
-    builder
-      .addCase(incrementAsync.pending, (state) => {
-        state.status = STOP;
-      })
-      .addCase(incrementAsync.fulfilled, (state, action) => {
-        state.status = STOP;
-        //state.value += action.payload;
-      });
-  },
+  }
 });
 
-export const { increment, decrement, reset, startStop } = counterSlice.actions;
+export const { increment, decrement, countDown, reset, startStop, switchTimers } = timerSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectRemainingTime = (state) => msToStringTime(state.counter.remainingTimeMS);
-export const selectCurrentTimer = (state) => state.counter.currentTimer;
-export const selectSessionLength = (state) => state.counter.sessionLength;
-export const selectBreakLength = (state) => state.counter.breakLength;
+const selectRemainingTimeMS = (state) => state.timer.remainingTimeMS;
+export const selectRemainingTime = (state) => state.timer.remainingTimeString;
+export const selectCurrentTimer = (state) => state.timer.currentTimer;
+export const selectSessionLength = (state) => state.timer.sessionLength;
+export const selectBreakLength = (state) => state.timer.breakLength;
+export const selectStatus = (state) => state.timer.status;
 
-export default counterSlice.reducer;
+export default timerSlice.reducer;

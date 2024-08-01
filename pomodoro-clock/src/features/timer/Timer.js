@@ -1,14 +1,16 @@
-import { useState } from "react";
+import React from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import {
   decrement,
   increment,
   reset,
-  startStop,
+  startStopAsync,
   selectRemainingTime,
   selectCurrentTimer,
   selectSessionLength,
-  selectBreakLength
+  selectBreakLength,
+  selectStatus,
+  STOP
 } from './timerSlice';
 import styles from './Timer.module.css';
 //import bootstrap icons
@@ -67,6 +69,7 @@ function Timer() {
   const dispatch = useDispatch();
   const remainingTime = useSelector(selectRemainingTime);
   const currentTimer = useSelector(selectCurrentTimer);
+  const timerStatus = useSelector(selectStatus);
 
   return (
     <div className={styles.timer}>
@@ -75,12 +78,18 @@ function Timer() {
         <label id='time-left' className={styles.value}>{remainingTime}</label>
       </div>
       <div className={styles.row}>
+        <div hidden>
+          <audio id='beep' src={beepSRC}></audio>
+        </div>
         <button
           id='start_stop'
           className={styles.button}
           aria-label='Start or stop current session or break timer'
-          onClick={()=>dispatch(startStop())}
-        ><span><i className="bi bi-play-fill"></i><i className="bi bi-pause-fill"></i></span></button>
+          onClick={() => dispatch(startStopAsync())}>
+          <span>
+            {timerStatus === STOP ? <i className="bi bi-play-fill"></i> : <i className="bi bi-pause-fill"></i>}
+          </span>
+        </button>
       </div>
       <div className={styles.row}>
         <select id='resetSelect' className={styles.select}>
@@ -101,9 +110,6 @@ function Timer() {
 export function ProductivityTimer() {
   return (
     <div>
-      <div hidden>
-        <audio id='beep' src={beepSRC}></audio>
-      </div>
       <div className={styles.row}>
         {timerSettingsArray.map(timerSetting => <TimerSettings id={timerSetting.id} key={timerSetting.id} />)}
       </div>
